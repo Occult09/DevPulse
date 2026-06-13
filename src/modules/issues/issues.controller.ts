@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { issuesService } from "./issues.service";
-import type { IUser } from "./issues.interface";
+import type { IIssues, IUser } from "./issues.interface";
 
 const createIssue = async (req: Request, res: Response) => {
     try {
@@ -65,6 +65,21 @@ const getSingleIssue = async (req: Request, res: Response) => {
 
 const updateIssue = async (req: Request, res: Response) => {
     try {
+        const { id } = req.params;
+        const payload: IIssues = req.body;
+        const result = await issuesService.updateIssueIntoDB(id as string, payload);
+        if (!result.rowCount) {
+            res.status(404).json({
+                success: false,
+                message: "No issue found!",
+                data: {}
+            })
+        }
+        res.status(200).json({
+            success: true,
+            message: "Issue retrieved successfully!",
+            data: result.rows[0]
+        })
 
     } catch (error: any) {
         res.status(500).json({

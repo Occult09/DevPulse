@@ -14,15 +14,15 @@ const getAllIssuesFromDB = async () => {
     const result = await pool.query(`
         SELECT * FROM issues
         `)
-        const issues = result.rows
-        if(issues.length === 0){
-            throw new Error("No Issues Found!");
-        }
-        const reporter_id = [...new Set(issues.map(issue=> issue.reporter_id))]
+    const issues = result.rows
+    if (issues.length === 0) {
+        throw new Error("No Issues Found!");
+    }
+    const reporter_id = [...new Set(issues.map(issue => issue.reporter_id))]
     const userData = await pool.query(`
         SELECT id,name,role FROM users WHERE id=$1
         `, [result.rows[0].reporter_id])
-        
+
 
     return result;
 }
@@ -35,9 +35,9 @@ const getSingleIssueFromDB = async (id: string) => {
     const userData = await pool.query(`
         SELECT id,name,role FROM users WHERE id=$1
         `, [result.rows[0].reporter_id])
-        if(!result.rowCount){
-            throw new Error("No Issue Found!");
-        }
+    if (!result.rowCount) {
+        throw new Error("No Issue Found!");
+    }
     // console.log(userData);
     const reporter = userData.rows[0]
     const issue = result.rows[0]
@@ -46,8 +46,12 @@ const getSingleIssueFromDB = async (id: string) => {
     return { ...issue, reporter }
 }
 
-const updateIssueIntoDB = async() => {
-
+const updateIssueIntoDB = async (id: string, payload: IIssues) => {
+    const { title, description, type } = payload;
+    const result = await pool.query(`
+        UPDATE issues SET title=COALESCE($1, title),description=COALESCE($2,description),type=COALESCE($3,type) WHERE id=$4 RETURNING *
+        `, [title,description,type,id])
+    return result;
 }
 
 export const issuesService = {

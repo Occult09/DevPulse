@@ -1,7 +1,7 @@
 export interface IIssues {
-    title: string;
-    description: string;
-    type: string;
+    title?: string;
+    description?: string;
+    type?: string;
 }
 
 export interface IUser {
