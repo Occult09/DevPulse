@@ -14,11 +14,45 @@ const getAllIssuesFromDB = async () => {
     const result = await pool.query(`
         SELECT * FROM issues
         `)
+        const issues = result.rows
+        if(issues.length === 0){
+            throw new Error("No Issues Found!");
+        }
+        const reporter_id = [...new Set(issues.map(issue=> issue.reporter_id))]
+    const userData = await pool.query(`
+        SELECT id,name,role FROM users WHERE id=$1
+        `, [result.rows[0].reporter_id])
+        
 
     return result;
 }
 
+const getSingleIssueFromDB = async (id: string) => {
+    const result = await pool.query(`
+        SELECT * FROM issues WHERE id=$1
+        `, [id])
+    // console.log(result);
+    const userData = await pool.query(`
+        SELECT id,name,role FROM users WHERE id=$1
+        `, [result.rows[0].reporter_id])
+        if(!result.rowCount){
+            throw new Error("No Issue Found!");
+        }
+    // console.log(userData);
+    const reporter = userData.rows[0]
+    const issue = result.rows[0]
+    delete issue.reporter_id
+    // console.log(user);
+    return { ...issue, reporter }
+}
+
+const updateIssueIntoDB = async() => {
+
+}
+
 export const issuesService = {
     createIssuesIntoDB,
-    getAllIssuesFromDB
+    getAllIssuesFromDB,
+    getSingleIssueFromDB,
+    updateIssueIntoDB
 }

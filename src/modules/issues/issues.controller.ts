@@ -5,7 +5,6 @@ import type { IUser } from "./issues.interface";
 const createIssue = async (req: Request, res: Response) => {
     try {
         const user = req.user;
-        console.log(user);
         const result = await issuesService.createIssuesIntoDB(req.body, user as IUser);
         res.status(201).json({
             success: true,
@@ -38,8 +37,48 @@ const getAllIssues = async (req: Request, res: Response) => {
     }
 }
 
+const getSingleIssue = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const result = await issuesService.getSingleIssueFromDB(id as string)
+        console.log(result);
+        if (!result) {
+            res.status(404).json({
+                success: false,
+                message: "No issue found!",
+                data: {}
+            })
+        }
+        res.status(200).json({
+            success: true,
+            message: "Issue retrieved successfully!",
+            data: result
+        })
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+            data: error
+        })
+    }
+}
+
+const updateIssue = async (req: Request, res: Response) => {
+    try {
+
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+            data: error
+        })
+    }
+}
+
 
 export const issuesController = {
     createIssue,
     getAllIssues,
+    getSingleIssue,
+    updateIssue
 }
